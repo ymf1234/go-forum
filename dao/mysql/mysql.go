@@ -14,7 +14,7 @@ var db *gorm.DB
 var sqlDB *sql.DB
 
 func InitDB(cfg *settings.MySQLConfig) (err error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local&tls=true",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		cfg.User,
 		cfg.Password,
 		cfg.Host,
