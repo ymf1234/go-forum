@@ -10,22 +10,26 @@ import (
 var Conf = new(AppConfig)
 
 type AppConfig struct {
-	Name         string `mapstructure:"name"`
-	Mode         string `mapstructure:"mode"`
-	Version      string `mapstructure:"version"`
-	StartTime    string `mapstructure:"max_size"`
-	Port         int    `mapstructure:"port"`
-	MachineID    int64  `mapstructure:"machine_id"`
+	*App         `mapstructure:"app"`
 	*LogConfig   `mapstructure:"log"`
 	*MySQLConfig `mapstructure:"mysql"`
 	*RedisConfig `mapstructure:"redis"`
 }
 
+type App struct {
+	Name      string `mapstructure:"name"`
+	Mode      string `mapstructure:"mode"`
+	Version   string `mapstructure:"version"`
+	StartTime string `mapstructure:"start_time"`
+	Port      int    `mapstructure:"port"`
+	MachineID int64  `mapstructure:"machine_id"`
+}
+
 type LogConfig struct {
 	Level      string `mapstructure:"level"`
 	Filename   string `mapstructure:"filename"`
-	MaxSize    string `mapstructure:"max_size"`
-	MaxAge     string `mapstructure:"max_age"`
+	MaxSize    int    `mapstructure:"max_size"`
+	MaxAge     int    `mapstructure:"max_age"`
 	MaxBackups int    `mapstructure:"max_backups"`
 }
 
