@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
@@ -39,9 +38,8 @@ func SignUpHandler(c *gin.Context) {
 		})
 		return
 	}*/
-	fmt.Println(p)
 	// 2、业务处理
-	logic.SignUp()
+	logic.SignUp(p)
 	// 3、返回响应
 	c.JSON(http.StatusOK, "ok")
 }
