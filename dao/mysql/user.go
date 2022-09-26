@@ -1,30 +1,19 @@
 package mysql
 
 import (
-	"database/sql"
+	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"gorm.io/gorm"
+	"web_app/models"
 )
 
-type User struct {
-	Id         int64        `gorm:"column:id;type:bigint(20);primary_key;AUTO_INCREMENT" json:"id"`
-	UserId     int64        `gorm:"column:user_id;type:bigint(20);NOT NULL" json:"user_id"`
-	Username   string       `gorm:"column:username;type:varchar(64);NOT NULL" json:"username"`
-	Password   string       `gorm:"column:password;type:varchar(64);NOT NULL" json:"password"`
-	Email      string       `gorm:"column:email;type:varchar(64)" json:"email"`
-	Gender     int          `gorm:"column:gender;type:tinyint(4);default:0;NOT NULL" json:"gender"`
-	CreateTime sql.NullTime `gorm:"column:create_time;type:datetime;default:CURRENT_TIMESTAMP" json:"create_time"`
-	UpdateTime sql.NullTime `gorm:"column:update_time;type:datetime;default:CURRENT_TIMESTAMP" json:"update_time"`
-}
-
-func (m *User) TableName() string {
-	return "user"
-}
+const secret = "explan.com"
 
 // CheckUserExist 检查用户是否存在
 func CheckUserExist(username string) (bool, error) {
-	var result User
-	find := db.Select("id").Find(&result, User{Username: username})
+	var result models.User
+	find := db.Select("id").Find(&result, models.User{Username: username})
 
 	// 查不到数据
 	is := errors.Is(find.Error, gorm.ErrRecordNotFound)
@@ -34,6 +23,21 @@ func CheckUserExist(username string) (bool, error) {
 	return true, nil
 }
 
-func InsertUser() {
+// InsertUser 新增用户
+func InsertUser(user *models.User) (err error) {
+	// 对密码加密
+	user.Password = encryptPassword(user.Password)
 	// 执行SQL语句入库
+	result := db.Create(&user)
+	// user.id             // 返回插入数据的主键
+	err = result.Error // 返回 error
+	//result.RowsAffected // 返回插入记录的条数
+	return
+}
+
+// encryptPassword md5加密
+func encryptPassword(oPassword string) string {
+	h := md5.New()
+	h.Write([]byte(secret))
+	return hex.EncodeToString(h.Sum([]byte(oPassword)))
 }

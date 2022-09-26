@@ -20,9 +20,12 @@ func SignUp(p *models.ParamSignUp) (err error) {
 	}
 	// 生成UID
 	userID := snowflake.GenID()
-
 	// 构造一个User实例
-	// 密码加密
+	user := &models.User{
+		UserId:   userID,
+		Username: p.Username,
+		Password: p.Password,
+	}
 	// 保存进数据库
-	mysql.InsertUser()
+	return mysql.InsertUser(user)
 }
