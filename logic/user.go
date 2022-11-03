@@ -15,7 +15,7 @@ func SignUp(p *models.ParamSignUp) (err error) {
 		return err
 	}
 
-	if exist {
+	if !exist {
 		return errors.New("用户已存在")
 	}
 	// 生成UID
@@ -28,4 +28,12 @@ func SignUp(p *models.ParamSignUp) (err error) {
 	}
 	// 保存进数据库
 	return mysql.InsertUser(user)
+}
+
+func Login(p *models.ParamLogin) error {
+	user := &models.User{
+		Username: p.Username,
+		Password: p.Password,
+	}
+	return mysql.Login(user)
 }

@@ -8,6 +8,7 @@ import (
 )
 
 func Setup() *gin.Engine {
+	//gin.SetMode(gin.ReleaseMode) // 发布模式
 	r := gin.New()
 
 	// 日志中间件
@@ -15,6 +16,8 @@ func Setup() *gin.Engine {
 
 	// 注册业务路由
 	r.POST("/sign-up", controller.SignUpHandler)
+	// 登录
+	r.POST("/login", controller.LoginHandler)
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "ok")

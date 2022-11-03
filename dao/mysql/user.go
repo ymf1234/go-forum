@@ -41,3 +41,19 @@ func encryptPassword(oPassword string) string {
 	h.Write([]byte(secret))
 	return hex.EncodeToString(h.Sum([]byte(oPassword)))
 }
+
+func Login(p *models.User) (err error) {
+	var result models.User
+	find := db.Find(&result, models.User{Username: p.Username})
+
+	// 查不到数据
+	is := errors.Is(find.Error, gorm.ErrRecordNotFound)
+	if is {
+		return find.Error
+	}
+
+	if result.Password != encryptPassword(p.Password) {
+		return errors.New("密码错误")
+	}
+	return nil
+}
