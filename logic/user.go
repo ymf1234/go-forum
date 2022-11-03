@@ -4,6 +4,7 @@ import (
 	"errors"
 	"web_app/dao/mysql"
 	"web_app/models"
+	"web_app/pkg/jwt"
 	"web_app/pkg/snowflake"
 )
 
@@ -35,5 +36,9 @@ func Login(p *models.ParamLogin) error {
 		Username: p.Username,
 		Password: p.Password,
 	}
-	return mysql.Login(user)
+	if err := mysql.Login(user); err != nil {
+		return err
+	} else {
+		jwt.GenToken()
+	}
 }
