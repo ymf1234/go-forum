@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
@@ -63,11 +64,18 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 	// 业务逻辑处理
-	if err := logic.Login(p); err != nil {
+	user, err := logic.Login(p)
+
+	if err != nil {
 		zap.L().Error("logic.Login failed", zap.String("username", p.Username), zap.Error(err))
 		ResponseErrorWithMsg(c, CodeInvalidParam, "用户名或密码错误")
 		return
 	}
 	// 返回响应
-	ResponseSuccess(c, nil)
+	ResponseSuccess(c, gin.H{
+		"user_id":       fmt.Sprintf("%d", user.UserId),
+		"user_name":     user.Username,
+		"access_token":  user.AccessToken,
+		"refresh_token": user.RefreshToken,
+	})
 }
