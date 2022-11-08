@@ -43,8 +43,8 @@ func encryptPassword(oPassword string) string {
 }
 
 func Login(p *models.User) (err error) {
-	var result models.User
-	find := db.Find(&result, models.User{Username: p.Username})
+	originPassword := p.Password // 记录一下原始密码(用户登录的密码)
+	find := db.Find(&p, models.User{Username: p.Username})
 
 	// 查不到数据
 	is := errors.Is(find.Error, gorm.ErrRecordNotFound)
@@ -52,7 +52,7 @@ func Login(p *models.User) (err error) {
 		return find.Error
 	}
 
-	if result.Password != encryptPassword(p.Password) {
+	if originPassword != encryptPassword(p.Password) {
 		return errors.New("密码错误")
 	}
 	return nil
