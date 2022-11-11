@@ -18,6 +18,11 @@ func Setup() *gin.Engine {
 	r.POST("/sign-up", controller.SignUpHandler)
 	// 登录
 	r.POST("/login", controller.LoginHandler)
+	// 刷新token
+	r.GET("/refresh_token", controller.RefreshTokenHandle)
+
+	r.GET("/posts", controller.PostListHandler)   // 分页展示帖子列表
+	r.GET("/posts2", controller.PostList2Handler) // 根据时间或者分数排序分页展示帖子列表
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "ok")

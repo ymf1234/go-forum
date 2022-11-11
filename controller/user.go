@@ -5,8 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
+	"strings"
 	"web_app/logic"
 	"web_app/models"
+	"web_app/pkg/jwt"
 )
 
 // SignUpHandler 注册请求
@@ -77,5 +79,34 @@ func LoginHandler(c *gin.Context) {
 		"user_name":     user.Username,
 		"access_token":  user.AccessToken,
 		"refresh_token": user.RefreshToken,
+	})
+}
+
+// RefreshTokenHandle 刷新accessToken
+func RefreshTokenHandle(c *gin.Context) {
+	rt := c.Query("refresh_token")
+
+	authHeader := c.Request.Header.Get("Authorization")
+
+	if authHeader == "" {
+		ResponseErrorWithMsg(c, CodeInvalidToken, "请求头缺少Auth Token")
+		c.Abort()
+		return
+	}
+
+	// 按空格分割
+	parts := strings.SplitN(authHeader, " ", 2)
+	if !(len(parts) == 2 && parts[0] == "Bearer") {
+		ResponseErrorWithMsg(c, CodeInvalidToken, "Token格式不对")
+		c.Abort()
+		return
+	}
+	atoken, rToken, err := jwt.RefreshToken(parts[1], rt)
+	if err != nil {
+		zap.L().Error("logic.RefreshToken failed", zap.Error(err))
+	}
+	ResponseSuccess(c, gin.H{
+		"access_token":  atoken,
+		"refresh_token": rToken,
 	})
 }

@@ -57,3 +57,17 @@ func Login(p *models.User) (err error) {
 	}
 	return nil
 }
+
+func GetUserByID(id int64) (user *models.User, err error) {
+	user = new(models.User)
+	find := db.Select("user_id", "username").Find(&user, models.User{UserId: id})
+
+	if find.Error != nil {
+		is := errors.Is(find.Error, gorm.ErrRecordNotFound)
+		if is {
+			return nil, errors.New("数据未查询到")
+		}
+		return nil, find.Error
+	}
+	return
+}

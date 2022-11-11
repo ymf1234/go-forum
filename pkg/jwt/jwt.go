@@ -11,6 +11,12 @@ const Issuer = "go-forum"
 
 var mySecret = []byte("go-forum")
 
+func keyFunc(_ *jwt.Token) (i interface{}, err error) {
+	// 直接使用标准的Claim则可以直接使用Parse方法
+	//token, err := jwt.Parse(tokenString, func(token *jwt.Token) (i interface{}, err error) {
+	return mySecret, nil
+}
+
 // CustomClaims 自定义声明类型 并内嵌jwt.RegisteredClaims
 // jwt包自带的jwt.RegisteredClaims只包含了官方字段
 // 假设我们这里需要额外记录一个username字段，所以要自定义结构体
@@ -47,14 +53,12 @@ func GenToken(userID int64, username string) (aToken, rToken string, err error) 
 }
 
 // ParseToken 解析JWT
-func ParseToken(tokenString string) (*MyClaims, error) {
+func ParseToken(tokenString string) (claims *MyClaims, err error) {
 	// 解析token
+	var token *jwt.Token
+	claims = new(MyClaims)
 	// 如果是自定义Claim结构体则需要使用 ParseWithClaims 方法
-	token, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(token *jwt.Token) (i interface{}, err error) {
-		// 直接使用标准的Claim则可以直接使用Parse方法
-		//token, err := jwt.Parse(tokenString, func(token *jwt.Token) (i interface{}, err error) {
-		return mySecret, nil
-	})
+	token, err = jwt.ParseWithClaims(tokenString, claims, keyFunc)
 	if err != nil {
 		return nil, err
 	}
@@ -63,4 +67,23 @@ func ParseToken(tokenString string) (*MyClaims, error) {
 		return claims, nil
 	}
 	return nil, errors.New("invalid token")
+}
+
+// RefreshToken 刷新AccessToken
+func RefreshToken(aToken, rToken string) (newAToken, newRToken string, err error) {
+	// refresh token无效直接返回
+	if _, err = jwt.Parse(rToken, keyFunc); err != nil {
+		return
+	}
+
+	// 从旧access token 中解析出claims数据 解析出payload负载信息
+	var claims MyClaims
+	_, err = jwt.ParseWithClaims(aToken, &claims, keyFunc)
+	validationError, _ := err.(*jwt.ValidationError)
+
+	// 当access token 是过期错误 并且 refresh token 没有过期时就仓健一个新的access token
+	if validationError.Errors == jwt.ValidationErrorExpired {
+		return GenToken(claims.UserID, claims.Username)
+	}
+	return
 }
