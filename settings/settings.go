@@ -22,7 +22,7 @@ type App struct {
 	Version   string `mapstructure:"version"`
 	StartTime string `mapstructure:"start_time"`
 	Port      int    `mapstructure:"port"`
-	MachineID int64  `mapstructure:"machine_id"`
+	MachineID uint16 `mapstructure:"machine_id"`
 }
 
 type LogConfig struct {

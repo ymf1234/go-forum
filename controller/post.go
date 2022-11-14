@@ -7,6 +7,30 @@ import (
 	"web_app/models"
 )
 
+// CreatePostHandler 创建帖子
+func CreatePostHandler(c *gin.Context) {
+	// 1、获取参数及校验
+	var post models.Post
+	if err := c.ShouldBindJSON(&post); err != nil {
+		zap.L().Debug("c.ShouldBindJSON(post)", zap.Any("err", err))
+		zap.L().Error("create post with invalid param")
+		ResponseErrorWithMsg(c, CodeInvalidParam, err.Error())
+		return
+	}
+
+	// 获取作者ID， 当前请求的UserID(从c取到当前发请求的用户ID)
+	userID, err := getCurrentUserID(c)
+	if err != nil {
+		zap.L().Error("GetCurrentUserID() failed", zap.Error(err))
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+	post.AuthorId = userID
+
+	// 创建帖子
+	logic.CreatePost(&post)
+}
+
 // PostListHandler 分页获取帖子列表
 func PostListHandler(c *gin.Context) {
 	// 获取分页参数

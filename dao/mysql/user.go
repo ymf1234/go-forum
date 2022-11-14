@@ -58,7 +58,7 @@ func Login(p *models.User) (err error) {
 	return nil
 }
 
-func GetUserByID(id int64) (user *models.User, err error) {
+func GetUserByID(id uint64) (user *models.User, err error) {
 	user = new(models.User)
 	find := db.Select("user_id", "username").Find(&user, models.User{UserId: id})
 

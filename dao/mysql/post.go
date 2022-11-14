@@ -2,9 +2,20 @@ package mysql
 
 import (
 	"errors"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"web_app/models"
 )
+
+func CreatePost(post *models.Post) (err error) {
+	result := db.Create(&post)
+	if result.Error != nil {
+		zap.L().Error("insert post failed", zap.Error(err))
+		err = ErrorInsertFailed
+		return
+	}
+	return result.Error
+}
 
 // GetPostList 获取帖子列表
 func GetPostList(page, size int64) (posts []*models.Post, err error) {
