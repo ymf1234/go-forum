@@ -8,11 +8,12 @@ import (
 	"web_app/pkg/snowflake"
 )
 
+// CreatePost 创建帖子
 func CreatePost(post *models.Post) (err error) {
 	// 生成post_id(生成帖子ID)
 	postID, err := snowflake.GenID()
 	if err != nil {
-		zap.L().Error("snowflake.GenID() faild", zap.Error(err))
+		zap.L().Error("snowflake.GenID() failed", zap.Error(err))
 		return
 	}
 
@@ -74,6 +75,41 @@ func GetPostList(page, size int64) (data []*models.ApiPostDetail, err error) {
 		}
 
 		data = append(data, postDetail)
+	}
+	return
+}
+
+func GetPostById(postID int64) (data *models.ApiPostDetail, err error) {
+	// 查询并组合我们接口想用的数据
+	// 查询帖子信息
+	post, err := mysql.GetPostByID(postID)
+	if err != nil {
+		zap.L().Error("mysql.GetPostByID(postID) failed",
+			zap.Int64("postID", postID),
+			zap.Error(err))
+		return nil, err
+	}
+	// 根据作者id查询作者信息
+	user, err := mysql.GetUserByID(post.AuthorId)
+	if err != nil {
+		zap.L().Error("mysql.GetUserByID() failed",
+			zap.Uint64("postID", post.AuthorId),
+			zap.Error(err))
+		return
+	}
+	// 根据社区id查询社区详细信息
+	community, err := mysql.GetCommunityByID(post.CommunityId)
+	if err != nil {
+		zap.L().Error("mysql.GetCommunityByID() failed",
+			zap.Uint64("community_id", post.CommunityId),
+			zap.Error(err))
+		return
+	}
+	// 接口数据拼接
+	data = &models.ApiPostDetail{
+		Post:            post,
+		CommunityDetail: community,
+		AuthorName:      user.Username,
 	}
 	return
 }

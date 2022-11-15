@@ -8,7 +8,7 @@ import (
 	"web_app/pkg/jwt"
 )
 
-func JWTAuthMiddlewares() func(c *gin.Context) {
+func JWTAuthMiddleware() func(c *gin.Context) {
 	return func(c *gin.Context) {
 		// 客户端携带Token有三种方式 1.放在请求头 2.放在请求体 3.放在URL
 		// 这里假设Token放在Header的Authorization中,并使用Bearer开始

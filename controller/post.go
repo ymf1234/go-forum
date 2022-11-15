@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"strconv"
 	"web_app/logic"
 	"web_app/models"
 )
@@ -63,4 +64,25 @@ func PostList2Handler(c *gin.Context) {
 
 	// 获取数据
 	logic.GetPostListNew(p)
+}
+
+// PostDetailHandler
+func PostDetailHandler(c *gin.Context) {
+	// 1、获取参数(从URL中获取帖子的id)
+	postIdStr := c.Param("id")
+	postId, err := strconv.ParseInt(postIdStr, 10, 64)
+	if err != nil {
+		zap.L().Error("get post detail with invalid param", zap.Error(err))
+		ResponseError(c, CodeInvalidParam)
+	}
+
+	// 根据id取出id帖子数据(查数据库)
+	post, err := logic.GetPostById(postId)
+	if err != nil {
+		zap.L().Error("logic.GetPost(postID) failed", zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+	}
+
+	// 3、返回响应
+	ResponseSuccess(c, post)
 }

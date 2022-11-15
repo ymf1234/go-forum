@@ -39,3 +39,24 @@ func GetPostList(page, size int64) (posts []*models.Post, err error) {
 	}
 	return posts, nil
 }
+
+func GetPostByID(postID int64) (post *models.Post, err error) {
+	filed := []string{
+		"post_id",
+		"title",
+		"content",
+		"author_id",
+		"community_id",
+		"create_time",
+	}
+	first := db.Select(filed).Where("post_id = ?", postID).First(&post)
+	if first.Error != nil {
+		// 查不到数据
+		is := errors.Is(first.Error, gorm.ErrRecordNotFound)
+		if is {
+			return nil, errors.New("未查询出数据")
+		}
+		return nil, first.Error
+	}
+	return post, nil
+}
