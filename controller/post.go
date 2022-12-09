@@ -29,7 +29,14 @@ func CreatePostHandler(c *gin.Context) {
 	post.AuthorId = userID
 
 	// 创建帖子
-	logic.CreatePost(&post)
+	err = logic.CreatePost(&post)
+	if err != nil {
+		zap.L().Error("logic.CreatePost failed", zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+	// 返回信息
+	ResponseSuccess(c, nil)
 }
 
 // PostListHandler 分页获取帖子列表
