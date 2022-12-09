@@ -2,6 +2,7 @@ package logic
 
 import (
 	"errors"
+	"go.uber.org/zap"
 	"web_app/dao/mysql"
 	"web_app/models"
 	"web_app/pkg/jwt"
@@ -20,7 +21,11 @@ func SignUp(p *models.ParamSignUp) (err error) {
 		return errors.New("用户已存在")
 	}
 	// 生成UID
-	userID := snowflake.GenID()
+	userID, err := snowflake.GenID()
+	if err != nil {
+		zap.L().Error("snowflake.GenID() failed", zap.Error(err))
+		return
+	}
 	// 构造一个User实例
 	user := &models.User{
 		UserId:   userID,

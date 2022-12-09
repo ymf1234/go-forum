@@ -22,13 +22,13 @@ func keyFunc(_ *jwt.Token) (i interface{}, err error) {
 // 假设我们这里需要额外记录一个username字段，所以要自定义结构体
 // 如果想要保存更多信息，都可以添加到这个结构体中
 type MyClaims struct {
-	UserID   int64  `json:"user_id"`
+	UserID   uint64 `json:"user_id"`
 	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
 // GenToken 生成access token 和 refresh token
-func GenToken(userID int64, username string) (aToken, rToken string, err error) {
+func GenToken(userID uint64, username string) (aToken, rToken string, err error) {
 	// 创建一个我们自己的声明
 	claims := MyClaims{
 		userID,
